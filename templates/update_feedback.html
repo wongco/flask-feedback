@@ -1,0 +1,15 @@
+<!-- Extending Base Template -->
+{% extends 'base.html' %}
+
+<!-- Tile Content -->
+{% block title %} Feedback - Update a Feedback {% endblock %}
+
+<!-- Body Content -->
+{% block body %}
+
+<h1>Update a Feedback</h1>
+<form action="/feedback/{{feedback.id}}/update" method="POST">
+  {% include 'base_form.html' %}
+</form>
+
+{% endblock%}

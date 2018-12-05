@@ -1,0 +1,46 @@
+<!-- Extending Base Template -->
+{% extends 'base.html' %}
+
+<!-- Tile Content -->
+{% block title %} Feedback - User Details {% endblock %}
+
+<!-- Body Content -->
+{% block body %}
+<h1>User Details </h1>
+<div>username: {{user.username}}</div>
+<div>email: {{user.email}}</div>
+<div>first_name: {{user.first_name}}</div>
+<div>last_name: {{user.last_name}}</div>
+<form action="/users/{{user.username}}/delete" method="POST">
+    <button type="submit">Delete User</button> 
+</form>
+
+
+<hr>
+
+<section>
+<h2>Feedback</h2>
+<ol>
+{% for feedback in feedbacks %}
+<div>
+    <div>
+        <a href="/feedback/{{feedback.id}}/update"><h5>{{ feedback.title }}</h5></a>
+    </div>
+
+    <div>{{ feedback.content}}</div>
+    <form action="/feedback/{{feedback.id}}/delete" method="POST">
+        <button type="submit">Delete</button>
+    </form>  
+</div>
+{% endfor %}
+
+</ol>
+
+<a href="/users/{{user.username}}/feedback/add">
+    <button type="button">Add feedback</button> 
+</a>
+
+
+</section>
+
+{% endblock%}

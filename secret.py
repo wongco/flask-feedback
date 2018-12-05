@@ -1,0 +1,2 @@
+FLASK_SECRET_KEY = "RONI IS AMAZING"
+POSTGRESQL_DB = "postgres:///feedback"

@@ -26,14 +26,19 @@ class User(db.Model):
 
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
-        """ Registers a user and hashes their password, returns user instance """
+        """hashes their password, returns user instance """
 
         # hashes password and encodes to utf8 format
         hashed = bcrypt.generate_password_hash(password)
         hashed_utf8 = hashed.decode("utf8")
 
         # return instance of User class
-        return cls(username=username, password=hashed_utf8, email=email, first_name=first_name, last_name=last_name)
+        return cls(
+            username=username,
+            password=hashed_utf8,
+            email=email,
+            first_name=first_name,
+            last_name=last_name)
 
     @classmethod
     def authenticate(cls, username, password):
@@ -47,3 +52,23 @@ class User(db.Model):
             return user
         else:
             return False
+
+
+class Feedback(db.Model):
+    """ Feedbacks """
+
+    __tablename__ = 'feedbacks'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    username = db.Column(
+        db.String(20), db.ForeignKey('users.username'), nullable=False)
+
+    user = db.relationship('User', backref='feedbacks')
+
+    @classmethod
+    def create_feedback(cls, title, content, username):
+        """return instance of Feedback """
+
+        return cls(title=title, content=content, username=username)
