@@ -1,0 +1,15 @@
+<!-- Extending Base Template -->
+{% extends 'base.html' %}
+
+<!-- Tile Content -->
+{% block title %} Feedback - User Registration {% endblock %}
+
+<!-- Body Content -->
+{% block body %}
+
+<h1>User Registration</h1>
+<form action="/register" method="POST">
+  {% include 'base_form.html' %}
+</form>
+
+{% endblock%}
