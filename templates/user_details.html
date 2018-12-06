@@ -6,41 +6,36 @@
 
 <!-- Body Content -->
 {% block body %}
-<h1>User Details </h1>
-<div>username: {{user.username}}</div>
-<div>email: {{user.email}}</div>
-<div>first_name: {{user.first_name}}</div>
-<div>last_name: {{user.last_name}}</div>
-<form action="/users/{{user.username}}/delete" method="POST">
-    <button type="submit">Delete User</button> 
-</form>
 
-
-<hr>
-
-<section>
-<h2>Feedback</h2>
-<ol>
-{% for feedback in feedbacks %}
 <div>
-    <div>
-        <a href="/feedback/{{feedback.id}}/update"><h5>{{ feedback.title }}</h5></a>
-    </div>
+  <h3>User Details</h3>
+  <p>Full Name: {{ user.first_name }} {{ user.last_name }}</p>
+  <p>Username: {{ user.username }}</p>
+  <p>Email: {{ user.email }}</p>
 
-    <div>{{ feedback.content}}</div>
-    <form action="/feedback/{{feedback.id}}/delete" method="POST">
-        <button type="submit">Delete</button>
-    </form>  
+  <form action="/users/{{user.username}}/delete" method="POST">
+    <button class="btn btn-danger" type="submit">Delete User</button>
+  </form>
 </div>
-{% endfor %}
+<hr />
 
-</ol>
-
-<a href="/users/{{user.username}}/feedback/add">
-    <button type="button">Add feedback</button> 
-</a>
-
-
-</section>
-
+<div>
+  <a href="/users/{{user.username}}/feedback/add">
+    <button class="btn btn-info" type="button">Add feedback</button>
+  </a>
+  <h3 class="py-2">Feedback</h3>
+  <ol>
+    {% for feedback in feedbacks %}
+    <li class="py-2">
+      <a href="/feedback/{{feedback.id}}/update"
+        ><h5>{{ feedback.title }}</h5></a
+      >
+      <p>{{ feedback.content }}</p>
+      <form action="/feedback/{{feedback.id}}/delete" method="POST">
+        <button class="btn btn-warning" type="submit">Delete</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ol>
+</div>
 {% endblock%}

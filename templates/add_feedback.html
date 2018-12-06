@@ -2,12 +2,12 @@
 {% extends 'base.html' %}
 
 <!-- Tile Content -->
-{% block title %} Feedback - Add a Feedback {% endblock %}
+{% block title %} Feedback - Add Feedback {% endblock %}
 
 <!-- Body Content -->
 {% block body %}
 
-<h1>Add a Feedback</h1>
+<h1>Add Feedback</h1>
 <form action="/users/{{username}}/feedback/add" method="POST">
   {% include 'base_form.html' %}
 </form>
