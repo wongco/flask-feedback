@@ -25,6 +25,8 @@ class User(db.Model):
     last_name = db.Column(db.String(30), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
+    feedbacks = db.relationship('Feedback', cascade='delete', backref='user')
+
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
         """hashes their password, returns user instance """
@@ -65,8 +67,6 @@ class Feedback(db.Model):
     content = db.Column(db.Text, nullable=False)
     username = db.Column(
         db.String(20), db.ForeignKey('users.username'), nullable=False)
-
-    user = db.relationship('User', backref='feedbacks', cascade='delete')
 
     @classmethod
     def create_feedback(cls, title, content, username):
