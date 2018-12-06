@@ -23,6 +23,7 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
@@ -65,7 +66,7 @@ class Feedback(db.Model):
     username = db.Column(
         db.String(20), db.ForeignKey('users.username'), nullable=False)
 
-    user = db.relationship('User', backref='feedbacks')
+    user = db.relationship('User', backref='feedbacks', cascade='delete')
 
     @classmethod
     def create_feedback(cls, title, content, username):

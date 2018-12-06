@@ -114,15 +114,23 @@ def user_login():
 def display_user_detail(username):
     """ display the user details excepts pw """
 
-    if not session.get("username") == username:
-        raise Unauthorized()
+    current_username = session.get('username')
 
-    else:
-        user = User.query.filter_by(username=username).first()
-        feedbacks = user.feedbacks
+    # current_username has a value
+    if current_username:
 
-        return render_template(
-            'user_details.html', user=user, feedbacks=feedbacks)
+        # obtain current_username instance
+        current_user = User.query.filter_by(username=current_username).first()
+
+        # check if target user is current user or if current user is an admin
+        if current_username == username or current_user.is_admin is True:
+
+            # retrieve target user details
+            user = User.query.filter_by(username=username).first()
+            feedbacks = user.feedbacks
+            return render_template('user_details.html', user=user, feedbacks=feedbacks)
+
+    raise Unauthorized()
 
 
 @app.route('/logout')
@@ -137,67 +145,97 @@ def logout():
 def delete_user(username):
     """ delete the user """
 
-    if not session.get("username") == username:
-        raise Unauthorized()
+    current_username = session.get('username')
 
-    else:
-        user = User.query.filter_by(username=username).first()
-        db.session.delete(user)
-        db.session.commit()
-        session.clear()
+    # current_username has a value
+    if current_username:
+        # obtain current_username instance
+        current_user = User.query.filter_by(username=current_username).first()
 
-        return redirect('/')
+        # check if target user is current user or if current user is an admin
+        if current_username == username or current_user.is_admin is True:
+            user = User.query.filter_by(username=username).first()
+            db.session.delete(user)
+            db.session.commit()
+            session.clear()
+
+            return redirect('/')
+
+    raise Unauthorized()
 
 
 @app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
 def add_feedback(username):
     """ add feedbacks """
 
-    if not session.get("username") == username:
-        raise Unauthorized()
-    else:
-        # we add a feedback for this user
+    current_username = session.get('username')
 
-        form = AddFeedbackForm()
-        if form.validate_on_submit():
-            title = form.title.data
-            content = form.content.data
-            new_feedback = Feedback.create_feedback(title, content, username)
-            db.session.add(new_feedback)
-            db.session.commit()
-            flash('You added one feedback!')
-            return redirect(f'/users/{username}')
+    # current_username has a value
+    if current_username:
+        # obtain current_username instance
+        current_user = User.query.filter_by(username=current_username).first()
 
-        else:
-            return render_template(
-                "add_feedback.html", form=form, username=username)
+        # check if target user is current user or if current user is an admin
+        if current_username == username or current_user.is_admin is True:
+
+            form = AddFeedbackForm()
+
+            if form.validate_on_submit():
+                # grab data from the forms
+                title = form.title.data
+                content = form.content.data
+
+                # created new feedback instance for targeted user and add to db
+                new_feedback = Feedback.create_feedback(
+                    title, content, username)
+                db.session.add(new_feedback)
+                db.session.commit()
+
+                flash('You added one feedback!')
+
+                return redirect(f'/users/{username}')
+
+            else:
+                return render_template(
+                    "add_feedback.html", form=form, username=username)
+
+    raise Unauthorized()
 
 
 @app.route('/feedback/<int:feedback_id>/update', methods=['GET', 'POST'])
 def update_feedback(feedback_id: int):
-    """ update feedbacks """
+    """ update feedback details """
 
     current_feedback = Feedback.query.filter_by(id=feedback_id).first()
+    current_username = session.get('username')
     # get the username throught the feedback relationship
     username = current_feedback.user.username
 
-    if not session.get("username") == username:
-        raise Unauthorized()
-    else:
-        # we update a feedback for this user
+    # current_username has a value
+    if current_username:
+        # obtain current_username instance
+        current_user = User.query.filter_by(username=current_username).first()
 
-        form = UpdateFeedbackForm(obj=current_feedback)
+        # check if target user is current user or if current user is an admin
+        if current_username == username or current_user.is_admin is True:
 
-        if form.validate_on_submit():
-            current_feedback.title = form.title.data
-            current_feedback.content = form.content.data
-            db.session.commit()
-            flash('You updated one feedback!')
-            return redirect(f'/users/{username}')
+            form = UpdateFeedbackForm(obj=current_feedback)
 
-        else:
-            return render_template(
-                "update_feedback.html", form=form, feedback=current_feedback)
+            if form.validate_on_submit():
+                # grab updated values and add to database
+                current_feedback.title = form.title.data
+                current_feedback.content = form.content.data
+                db.session.commit()
+
+                flash('You updated feedback detail!')
+
+                return redirect(f'/users/{username}')
+
+            else:
+                return render_template(
+                    "update_feedback.html", form=form, feedback=current_feedback)
+
+    raise Unauthorized()
 
 
 @app.route('/feedback/<int:feedback_id>/delete', methods=['POST'])
@@ -228,3 +266,8 @@ def page_not_found(error):
 def user_unauthorized(error):
     """ 401 Handler for Flask """
     return render_template('/401.html'), 401
+
+
+# new_admin = User(username = 'gin', password = '1234', email = 'gin@gin.com', first_name = 'Gin', last_name = 'W', is_admin = True)
+# db.session.add(new_admin)
+# db.session.commit()
