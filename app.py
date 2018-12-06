@@ -62,7 +62,8 @@ def user_registration():
             return render_template("register.html", form=form)
 
         session["username"] = user.username
-        flash(f'{user.username} has registed')
+
+        flash(f'{user.username} has been registered.')
 
         # this is the resource we want to send someone after registering
         return redirect(f"/users/{user.username}")
@@ -86,7 +87,9 @@ def user_login():
 
         if user:
             session["username"] = user.username
-            flash(f'{username} have logged in')
+
+            flash(f'{username} was logged in.')
+
             return redirect(f'/users/{username}')
 
         else:
@@ -104,7 +107,11 @@ def user_login():
 def logout():
     """ log out the user and clean the session, redirect to main"""
 
+    current_username = session.get('username')
     session.clear()
+
+    flash(f'{current_username} was logged out.')
+
     return redirect('/')
 
 
@@ -135,6 +142,8 @@ def delete_user(target_username):
         if current_username == target_username:
             session.clear()
 
+        flash(f'{target_username } was deleted!')
+
         return redirect('/')
 
     raise Unauthorized()
@@ -159,7 +168,7 @@ def add_feedback(target_username):
             db.session.add(new_feedback)
             db.session.commit()
 
-            flash('You added one feedback!')
+            flash('Feedback was added!')
 
             return redirect(f'/users/{target_username}')
 
@@ -187,7 +196,7 @@ def update_feedback(feedback_id: int):
             target_feedback.content = form.content.data
             db.session.commit()
 
-            flash('You updated feedback detail!')
+            flash('Feedback details were updated.')
 
             return redirect(f'/users/{target_username}')
 
@@ -209,6 +218,8 @@ def delete_feedback(feedback_id: int):
 
         db.session.delete(target_feedback)
         db.session.commit()
+
+        flash('Feedback was deleted.')
 
         return redirect(f'/users/{target_username_str}')
 
