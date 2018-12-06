@@ -12,6 +12,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = FLASK_SECRET_KEY
 
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 connect_db(app)
 db.create_all()
 
@@ -28,6 +30,11 @@ def send_to_register():
 @app.route('/register', methods=['GET', 'POST'])
 def user_registration():
     """ displays registration form """
+
+    username = session.get("username")
+
+    if username:
+        return redirect(f"/users/{username}")
 
     form = RegisterForm()
 
@@ -107,7 +114,7 @@ def user_login():
 def display_user_detail(username):
     """ display the user details excepts pw """
 
-    if not session["username"] == username:
+    if not session.get("username") == username:
         raise Unauthorized()
 
     else:
@@ -130,13 +137,14 @@ def logout():
 def delete_user(username):
     """ delete the user """
 
-    if not session["username"] == username:
+    if not session.get("username") == username:
         raise Unauthorized()
 
     else:
         user = User.query.filter_by(username=username).first()
         db.session.delete(user)
         db.session.commit()
+        session.clear()
 
         return redirect('/')
 
@@ -145,7 +153,7 @@ def delete_user(username):
 def add_feedback(username):
     """ add feedbacks """
 
-    if not session["username"] == username:
+    if not session.get("username") == username:
         raise Unauthorized()
     else:
         # we add a feedback for this user
@@ -170,9 +178,10 @@ def update_feedback(feedback_id: int):
     """ update feedbacks """
 
     current_feedback = Feedback.query.filter_by(id=feedback_id).first()
-    username = current_feedback.user.username  # get the username throught the feedback relationship
+    # get the username throught the feedback relationship
+    username = current_feedback.user.username
 
-    if not session["username"] == username:
+    if not session.get("username") == username:
         raise Unauthorized()
     else:
         # we update a feedback for this user
@@ -196,9 +205,10 @@ def delete_feedback(feedback_id: int):
     """ delete the feedback"""
 
     current_feedback = Feedback.query.filter_by(id=feedback_id).first()
-    username = current_feedback.user.username  # get the username throught the feedback relationship
+    # get the username throught the feedback relationship
+    username = current_feedback.user.username
 
-    if not session["username"] == username:
+    if not session.get("username") == username:
         raise Unauthorized()
 
     else:
@@ -206,3 +216,15 @@ def delete_feedback(feedback_id: int):
         db.session.commit()
 
         return redirect(f'/users/{username}')
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """ 404 Handler for Flask """
+    return render_template('/404.html'), 404
+
+
+@app.errorhandler(401)
+def user_unauthorized(error):
+    """ 401 Handler for Flask """
+    return render_template('/401.html'), 401
