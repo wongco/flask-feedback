@@ -122,7 +122,8 @@ def display_user_detail(target_username):
     if isCurrentUserAuthorized(target_username):
         target_user = User.query.filter_by(username=target_username).first()
         target_feedbacks = target_user.feedbacks
-        return render_template('user_details.html', user=target_user, feedbacks=target_feedbacks)
+        return render_template(
+            'user_details.html', user=target_user, feedbacks=target_feedbacks)
 
     raise Unauthorized()
 
@@ -163,8 +164,8 @@ def add_feedback(target_username):
             content = form.content.data
 
             # created new feedback instance for targeted user and add to db
-            new_feedback = Feedback.create_feedback(
-                title, content, target_username)
+            new_feedback = Feedback.create_feedback(title, content,
+                                                    target_username)
             db.session.add(new_feedback)
             db.session.commit()
 
@@ -234,8 +235,7 @@ def isCurrentUserAuthorized(target_username_str):
     # current_username has a value
     if current_username:
         # obtain current_username instance
-        current_user = User.query.filter_by(
-            username=current_username).first()
+        current_user = User.query.filter_by(username=current_username).first()
         # check if target user is current user or if current user is an admin
         return current_username == target_username_str or current_user.is_admin
 
